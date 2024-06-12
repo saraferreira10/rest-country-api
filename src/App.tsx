@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+import Menu from "./components/Menu";
+import Search from "./components/Search";
+import Select from "./components/Select";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [countrys, setCountrys] = useState<
+    {
+      name: { common: string };
+      flags: { png: string };
+    }[]
+  >([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const resp = await fetch("https://restcountries.com/v3.1/all");
+      const data = await resp.json();
+      setCountrys(data.slice(0, 9));
+    }
+
+    fetchData();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="min-h-screen w-full flex flex-col gap-6">
+      <Menu />
+      <Search />
+      <Select />
 
-export default App
+      <div className="flex flex-col justify-center items-center w-full">
+        {countrys.map((c) => (
+          <li key={c.name.common}>
+            {c.name.common}
+            <img src={c.flags.png} />
+          </li>
+        ))}
+      </div>
+    </div>
+  );
+}
